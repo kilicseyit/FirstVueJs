@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Kayıt Formu</title>
+</head>
+
+<body>
+    <div id="app">
+        <h2>Kayıt Formu</h2>
+        <form @submit.prevent="submitForm">
+            <label>Adınız:</label>
+            <input v-model="formData.FirstName" type="text" placeholder="Lütfen adınızı giriniz" required><br>
+            <label>Soyisim:</label>
+            <input v-model="formData.LastName" type="text" placeholder="Lütfen soy adınızı giriniz" required><br>
+            <label>Doğum tarihiniz:</label>
+            <input v-model="formData.BirthDate" type="date"><br>
+            <label>Cinsiyetiniz:</label>
+            <input v-model="formData.Gender" type="radio" value="Erkek">Erkek
+            <input v-model="formData.Gender" type="radio" value="Kadın">Kadın<br>
+            <label>Yaşınız:</label>
+            <input v-model="formData.Age" type="text" placeholder="Lütfen yaşınızı giriniz" required><br>
+            <label>Email:</label>
+            <input v-model="formData.Email" type="email" placeholder="Lütfen mailinizi giriniz" required><br>
+            <div v-for="(educationItem, index) in educationList" :key="index">
+                <label>Eğitim Durumu:</label>
+                <select v-model="educationItem.selected" name="egitimDurumu">
+                    <option v-for="option in educationOptions" :value="option">{{ option }}</option>
+                </select>
+            </div>
+            <input type="submit" value="Kayıt Ol">
+            <input type="reset" value="Temizle">
+            <button @click.prevent="addNewEducationSelect">Yeni Form Ekle</button>
+            <button @click.prevent="deleteLastEducationSelect">Formu Sil</button>
+        </form>
+
+        <div>
+            <button @click="goToIndexPage">Kullanıcılar Sayfası</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                formData: {
+                    FirstName: '',
+                    LastName: '',
+                    BirthDate: '',
+                    Gender: '',
+                    Age: '',
+                    Email: '',
+                },
+                educationList: [{ selected: '' }],
+                educationOptions: [
+                    'Primary school',
+                    'Middle School',
+                    'High School',
+                    'University'
+                ]
+            },
+            methods: {
+                submitForm() {
+                    const apiData = {
+                        FirstName: this.formData.FirstName,
+                        LastName: this.formData.LastName,
+                        BirthDate: this.formData.BirthDate,
+                        Gender: this.formData.Gender,
+                        Age: parseInt(this.formData.Age),
+                        Email: this.formData.Email,
+                        EducationLevel: this.educationList.map(item => item.selected).join(', '),
+                    };
+
+                    axios.post('https://localhost:7087/api/Form', apiData)
+                        .then(response => {
+                            alert('Veri başarıyla kaydedildi.');
+                        })
+                        .catch(error => {
+                            alert('Hata oluştu: ' + error.response.data);
+                        });
+                },
+                addNewEducationSelect() {
+                    this.educationList.push({ selected: '' });
+                },
+                deleteLastEducationSelect() {
+                    if (this.educationList.length > 1) {
+                        this.educationList.pop();
+                    }
+                },
+                goToIndexPage() {
+                    window.location.href = 'index2.html'; 
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

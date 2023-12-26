@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detaylar</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Dosya Detayları</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Özellik</th>
+                    <th>Değer</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(detail, index) in fileDetails" :key="index">
+                    <td>{{ detail.label }}</td>
+                    <td>{{ detail.value }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                fileDetails: [] 
+            },
+            mounted() {
+                var fileName = this.getQueryParam("dosya");
+                if (fileName) {
+                    this.getFileContent(fileName);
+                }
+            },
+            methods: {
+                getQueryParam(param) {
+                    var urlParams = new URLSearchParams(window.location.search);
+                    return urlParams.get(param);
+                },
+                getFileContent(fileName) {
+                    axios.get('https://localhost:7087/api/Form/GetFileContent?dosya=' + encodeURIComponent(fileName))
+                        .then(response => {
+                            var fileContent = JSON.parse(response.data.fileContent);
+                            var turkishLabels = {
+                                FirstName: "Ad",
+                                LastName: "Soyad",
+                                BirthDate: "Doğum Tarihi",
+                                Gender: "Cinsiyet",
+                                Age: "Yaş",
+                                Email: "E-posta",
+                                EducationLevel: "Eğitim Seviyesi"
+                            };
+                            for (var prop in fileContent) {
+                                this.fileDetails.push({
+                                    label: turkishLabels[prop],
+                                    value: fileContent[prop]
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.log("Dosya içeriği alınırken hata oluştu.");
+                        });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

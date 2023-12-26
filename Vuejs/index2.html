@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kullanıcı Mailleri</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 20%;
+            border: 2px solid #ddd;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Kullanıcı Mailleri</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sıra</th>
+                    <th>Dosya Adı</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(fileName, index) in fileList" :key="index">
+                    <td>{{ index + 1 }}</td>
+                    <td><a :href="'file-details.html?dosya=' + encodeURIComponent(fileName)" target="_blank">{{ fileName }}</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                fileList: [] 
+            },
+            mounted() {
+                this.getFileList();
+            },
+            methods: {
+                getFileList() {
+                    axios.get('https://localhost:7087/api/Form/GetFileList')
+                        .then(response => {
+                            this.fileList = response.data.fileList;
+                        })
+                        .catch(error => {
+                            console.log("Dosya adları alınırken hata oluştu.");
+                        });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
